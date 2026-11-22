@@ -32,3 +32,10 @@ para darte pistas en vez de la solución.
 [Aprende con Franc](https://claude.ai/artifact/FZN7QVUfAzsVnbArzpYCAq): ruta
 con progreso, simulador de terminal con misiones y laboratorios de tuberías y
 permisos. El código fuente está en `web/index.html`.
+
+## Franc Academy
+
+[Franc Academy](https://franc.tail408522.ts.net:8443): app de cultura general
+(lecciones, tests, examen y reto diario) que corre en Franc. Solo se abre
+desde dispositivos conectados a mi red de Tailscale. Código en
+[`BryanAguilar-Dev/franc-academy`](https://github.com/BryanAguilar-Dev/franc-academy).

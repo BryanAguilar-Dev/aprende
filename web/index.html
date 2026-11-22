@@ -1,0 +1,991 @@
+<title>Aprende con Franc</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: una columna de estudio; la ruta arriba, el simulador como pieza central, luego dos laboratorios visuales. */
+:root {
+  --bg: #f3f5f9;
+  --surface: #ffffff;
+  --ink: #16202e;
+  --muted: #586374;
+  --line: #dbe1ea;
+  --accent: #2652d4;
+  --accent-soft: #e3eafc;
+  --win: #18865a;
+  --win-soft: #def3e9;
+  --warm: #b86e08;
+  --warm-soft: #fbefd9;
+  --term-bg: #0d131c;
+  --term-fg: #d5dfeb;
+  --term-dim: #7d8aa0;
+  --term-user: #6fd49a;
+  --term-path: #79a6ff;
+  --term-err: #ff8a7a;
+  --term-ok: #f2c46b;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e131b; --surface: #161d28; --ink: #e5eaf1; --muted: #98a3b4; --line: #273244;
+    --accent: #85a2ff; --accent-soft: #1d2a4a; --win: #45cf92; --win-soft: #143528;
+    --warm: #f1b24e; --warm-soft: #3a2c12; --term-bg: #080c12;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e131b; --surface: #161d28; --ink: #e5eaf1; --muted: #98a3b4; --line: #273244;
+  --accent: #85a2ff; --accent-soft: #1d2a4a; --win: #45cf92; --win-soft: #143528;
+  --warm: #f1b24e; --warm-soft: #3a2c12; --term-bg: #080c12;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font: 16px/1.6 var(--font-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 64px;
+}
+.wrap { max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; gap: 56px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; line-height: 1.15; }
+h1 { font-size: clamp(2.1rem, 6vw, 3.4rem); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: clamp(1.5rem, 3.6vw, 2.1rem); font-weight: 800; letter-spacing: -0.01em; }
+h3 { font-size: 1.1rem; font-weight: 600; }
+p { margin: 0; }
+a { color: var(--accent); }
+code, kbd { font-family: var(--font-mono); font-size: 0.92em; }
+:not(pre) > code { background: var(--accent-soft); padding: 1px 6px; border-radius: 4px; }
+button { font: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.eyebrow { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); font-weight: 600; }
+.lead { color: var(--muted); max-width: 62ch; }
+section { display: flex; flex-direction: column; gap: 20px; }
+.sec-head { display: flex; flex-direction: column; gap: 8px; }
+
+/* Cabecera */
+header.top { padding-top: 40px; display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: end; }
+header.top .intro { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.prompt-line { font-family: var(--font-mono); font-size: 0.95rem; color: var(--muted); }
+.prompt-line b { color: var(--win); font-weight: 500; }
+.prompt-line i { color: var(--accent); font-style: normal; }
+.meter { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.meter svg { width: 120px; height: 120px; }
+.meter .num { font-family: var(--font-display); font-weight: 800; font-size: 1.6rem; fill: var(--ink); }
+.meter .lbl { font-size: 0.8rem; color: var(--muted); }
+nav.jump { display: flex; flex-wrap: wrap; gap: 8px; }
+nav.jump a { text-decoration: none; color: var(--ink); border: 1px solid var(--line); background: var(--surface); padding: 6px 14px; border-radius: 999px; font-size: 0.9rem; }
+nav.jump a:hover { border-color: var(--accent); color: var(--accent); }
+@media (max-width: 560px) { header.top { grid-template-columns: 1fr; } .meter { align-items: flex-start; } }
+
+/* Ruta */
+.route { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.mod { display: grid; grid-template-columns: 48px 1fr; gap: 16px; position: relative; }
+.mod::before { content: ""; position: absolute; left: 23px; top: 48px; bottom: 0; width: 2px; background: var(--line); }
+.mod:last-child::before { display: none; }
+.dot { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; font-family: var(--font-mono); font-weight: 500; background: var(--surface); border: 2px solid var(--line); color: var(--muted); position: relative; z-index: 1; }
+.mod.started .dot { border-color: var(--accent); color: var(--accent); }
+.mod.done .dot { background: var(--win); border-color: var(--win); color: var(--surface); }
+.mod details { padding-bottom: 20px; min-width: 0; }
+.mod summary { list-style: none; cursor: pointer; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; padding-top: 10px; }
+.mod summary::-webkit-details-marker { display: none; }
+.mod summary h3::after { content: " ▸"; color: var(--muted); font-size: 0.9em; }
+.mod details[open] summary h3::after { content: " ▾"; }
+.mod .why { color: var(--muted); font-size: 0.92rem; }
+.mod .count { font-family: var(--font-mono); font-size: 0.82rem; color: var(--muted); margin-left: auto; font-variant-numeric: tabular-nums; }
+.lessons { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.lessons label { display: flex; gap: 10px; align-items: flex-start; padding: 6px 10px; border-radius: 6px; cursor: pointer; }
+.lessons label:hover { background: var(--accent-soft); }
+.lessons input { margin-top: 5px; accent-color: var(--win); width: 16px; height: 16px; flex: none; }
+.lessons .hito { font-weight: 600; }
+.lessons input:checked + span { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--win); }
+.lessons a { font-size: 0.85rem; margin-left: 6px; }
+.note { font-size: 0.85rem; color: var(--muted); }
+
+/* Simulador */
+.sim { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 16px; align-items: start; }
+@media (max-width: 860px) { .sim { grid-template-columns: minmax(0, 1fr); } }
+.term { background: var(--term-bg); color: var(--term-fg); border-radius: 10px; font-family: var(--font-mono); font-size: 0.9rem; line-height: 1.5; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+.term-bar { display: flex; align-items: center; justify-content: space-between; padding: 8px 14px; border-bottom: 1px solid #1f2a3a; color: var(--term-dim); font-size: 0.8rem; gap: 8px; }
+.term-bar button { background: transparent; border: 1px solid #2a3850; color: var(--term-fg); border-radius: 6px; padding: 2px 10px; font-size: 0.78rem; }
+.term-out { height: 360px; overflow: auto; padding: 12px 14px 4px; white-space: pre-wrap; word-break: break-word; }
+.term-in { display: flex; gap: 8px; padding: 4px 14px 14px; align-items: baseline; flex-wrap: wrap; }
+.term-in input { flex: 1; min-width: 120px; background: transparent; border: 0; color: var(--term-fg); font: inherit; outline: none; caret-color: var(--term-user); }
+.term .u { color: var(--term-user); } .term .p { color: var(--term-path); }
+.term .e { color: var(--term-err); } .term .ok { color: var(--term-ok); } .term .d { color: var(--term-dim); }
+.side { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.panel h3 { font-size: 0.95rem; }
+.mission .mtext { font-weight: 500; }
+.mission .mstep { font-family: var(--font-mono); font-size: 0.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.mission .hint { font-size: 0.88rem; background: var(--warm-soft); color: var(--ink); border-radius: 6px; padding: 8px 10px; }
+.mission .row { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn { background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 5px 12px; font-size: 0.88rem; }
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.btn.primary:hover { color: var(--surface); filter: brightness(1.08); }
+.bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--win); width: 0; transition: width .4s; }
+.tree { font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.55; overflow-x: auto; max-height: 340px; overflow-y: auto; }
+.tree ul { list-style: none; margin: 0; padding-left: 14px; border-left: 1px dashed var(--line); }
+.tree > ul { padding-left: 0; border: 0; }
+.tree li { white-space: nowrap; }
+.tree .dir { color: var(--accent); cursor: pointer; background: none; border: 0; padding: 0; font: inherit; }
+.tree .dir:hover { text-decoration: underline; }
+.tree .here { background: var(--warm-soft); color: var(--warm); border-radius: 4px; padding: 0 4px; font-weight: 500; }
+.tree .hidden { opacity: 0.55; }
+.tree .x { color: var(--win); }
+
+/* Tuberías */
+.pipe { display: flex; gap: 10px; align-items: stretch; overflow-x: auto; padding-bottom: 6px; }
+.stage { flex: 1 0 150px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; transition: opacity .3s, border-color .3s; }
+.stage.off { opacity: 0.3; }
+.stage.now { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.stage .cmd { font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent); font-weight: 500; }
+.stage pre { margin: 0; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.5; }
+.stage .what { font-size: 0.8rem; color: var(--muted); }
+.arrow { align-self: center; color: var(--muted); font-family: var(--font-mono); flex: none; }
+.cmdline { font-family: var(--font-mono); background: var(--term-bg); color: var(--term-fg); padding: 10px 14px; border-radius: 8px; overflow-x: auto; white-space: pre; }
+.cmdline .ok { color: var(--term-ok); }
+.row-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Permisos */
+.perm { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 720px) { .perm { grid-template-columns: minmax(0, 1fr); } }
+.pgrid { display: grid; grid-template-columns: auto repeat(3, 1fr); gap: 8px; align-items: center; }
+.pgrid .h { font-size: 0.78rem; color: var(--muted); text-align: center; text-transform: uppercase; letter-spacing: 0.08em; }
+.pgrid .who { font-weight: 500; font-size: 0.92rem; }
+.pgrid .who small { display: block; color: var(--muted); font-weight: 400; font-family: var(--font-mono); }
+.pbit { font-family: var(--font-mono); font-size: 1.1rem; padding: 8px 0; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--muted); }
+.pbit[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.pout { display: flex; flex-direction: column; gap: 12px; }
+.big { font-family: var(--font-mono); font-size: clamp(1.4rem, 4vw, 2rem); letter-spacing: 0.04em; overflow-x: auto; }
+.big .t { color: var(--muted); }
+.octal { font-family: var(--font-display); font-weight: 800; font-size: 2.6rem; color: var(--accent); line-height: 1; font-variant-numeric: tabular-nums; }
+.say { color: var(--ink); }
+.say li { margin-bottom: 2px; }
+footer { color: var(--muted); font-size: 0.88rem; border-top: 1px solid var(--line); padding-top: 16px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="intro">
+      <div class="prompt-line"><b>bryan@franc</b>:<i>~/aprende</i>$ ./empezar</div>
+      <h1>Aprende con Franc</h1>
+      <p class="lead">Tu ruta desde cero hasta desarrollar CaratCore y Finanzas tú solo. Lee la lección en el repositorio, practica aquí sin miedo y luego hazlo de verdad en Franc.</p>
+      <nav class="jump" aria-label="Secciones">
+        <a href="#ruta">Ruta</a><a href="#simulador">Simulador</a><a href="#tuberias">Tuberías</a><a href="#permisos">Permisos</a>
+      </nav>
+    </div>
+    <div class="meter" aria-live="polite">
+      <svg viewBox="0 0 120 120" role="img" aria-labelledby="meterTitle">
+        <title id="meterTitle">Progreso total</title>
+        <circle cx="60" cy="60" r="50" fill="none" stroke="var(--line)" stroke-width="10"/>
+        <circle id="ring" cx="60" cy="60" r="50" fill="none" stroke="var(--win)" stroke-width="10" stroke-linecap="round" stroke-dasharray="314.16" stroke-dashoffset="314.16" transform="rotate(-90 60 60)" style="transition: stroke-dashoffset .5s"/>
+        <text id="ringNum" class="num" x="60" y="68" text-anchor="middle">0%</text>
+      </svg>
+      <span class="lbl" id="ringLbl">0 de 0 pasos</span>
+    </div>
+  </header>
+
+  <section id="ruta">
+    <div class="sec-head">
+      <span class="eyebrow">La ruta</span>
+      <h2>Nueve módulos, en orden</h2>
+      <p class="lead">Cada módulo se apoya en el anterior. Marca cada paso al terminarlo. Las casillas se guardan solo en este navegador; la copia oficial de tu progreso es <code>ruta.md</code> en el repositorio.</p>
+    </div>
+    <ol class="route" id="route"></ol>
+  </section>
+
+  <section id="simulador">
+    <div class="sec-head">
+      <span class="eyebrow">Módulo 00 · práctica sin riesgo</span>
+      <h2>Simulador de terminal</h2>
+      <p class="lead">Un Franc de mentira. Aquí puedes borrar lo que quieras: el botón «Reiniciar» lo deja todo como al principio. Sigue las misiones o escribe <code>help</code> para ver los comandos.</p>
+    </div>
+    <div class="sim">
+      <div class="term" id="term">
+        <div class="term-bar"><span>bryan@franc — simulador</span><span class="row-btns"><button type="button" id="clearBtn">Limpiar</button><button type="button" id="resetBtn">Reiniciar</button></span></div>
+        <div class="term-out" id="out" aria-live="polite"></div>
+        <form class="term-in" id="form" autocomplete="off">
+          <label for="cmd" id="promptLbl"></label>
+          <input id="cmd" spellcheck="false" autocapitalize="off" aria-label="Comando">
+        </form>
+      </div>
+      <div class="side">
+        <div class="panel mission" id="mission">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><h3>Misión</h3><span class="mstep" id="mstep"></span></div>
+          <div class="bar"><i id="mbar"></i></div>
+          <p class="mtext" id="mtext"></p>
+          <p class="hint" id="mhint" hidden></p>
+          <div class="row"><button class="btn" type="button" id="hintBtn">Dame una pista</button><button class="btn" type="button" id="skipBtn">Saltar</button></div>
+        </div>
+        <div class="panel">
+          <h3>Dónde estás</h3>
+          <p class="note">Las carpetas son azules; pulsa una para escribir el <code>cd</code>. Lo atenuado está oculto.</p>
+          <div class="tree" id="tree"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tuberias">
+    <div class="sec-head">
+      <span class="eyebrow">Módulo 00 · lección 05</span>
+      <h2>Cómo viaja el texto por una tubería</h2>
+      <p class="lead">Cada comando hace una sola cosa y le pasa el resultado al siguiente con <code>|</code>. Pregunta: ¿qué fruta aparece más en <code>frutas.txt</code>? Ve añadiendo comandos y mira qué sale en cada paso.</p>
+    </div>
+    <div class="cmdline" id="pipeCmd"></div>
+    <div class="pipe" id="pipe"></div>
+    <div class="row-btns"><button class="btn primary" type="button" id="pipeNext">Añadir el siguiente comando</button><button class="btn" type="button" id="pipeReset">Volver a empezar</button></div>
+  </section>
+
+  <section id="permisos">
+    <div class="sec-head">
+      <span class="eyebrow">Módulo 00 · lección 06</span>
+      <h2>Descifra los permisos</h2>
+      <p class="lead">Pulsa las letras para dar o quitar permisos y mira cómo cambian la cadena de <code>ls -l</code> y el número de <code>chmod</code>. Cada letra vale: r = 4, w = 2, x = 1.</p>
+    </div>
+    <div class="perm">
+      <div class="panel">
+        <div class="pgrid" id="pgrid"></div>
+        <div class="row-btns" style="margin-top:6px">
+          <span class="note" style="align-self:center">Ejemplos típicos:</span>
+          <button class="btn" type="button" data-oct="755">755</button>
+          <button class="btn" type="button" data-oct="644">644</button>
+          <button class="btn" type="button" data-oct="600">600</button>
+          <button class="btn" type="button" data-oct="700">700</button>
+        </div>
+      </div>
+      <div class="pout">
+        <div><span class="eyebrow">Lo que ves en ls -l</span><div class="big" id="pstr"></div></div>
+        <div><span class="eyebrow">El comando</span><div class="cmdline" id="pcmd"></div></div>
+        <div style="display:flex;gap:16px;align-items:center"><div class="octal" id="poct"></div><ul class="say" id="psay" style="margin:0;padding-left:18px"></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>Las lecciones están en el repositorio <a href="https://github.com/BryanAguilar-Dev/aprende" target="_blank" rel="noopener">BryanAguilar-Dev/aprende</a>. Este simulador imita lo básico de bash; en Franc algunos comandos tienen más opciones.</footer>
+</div>
+
+<script>
+(function () {
+"use strict";
+var REPO = "https://github.com/BryanAguilar-Dev/aprende/blob/main/modulos/00-terminal/";
+
+function store(key, val) {
+  try {
+    if (val === undefined) return JSON.parse(localStorage.getItem(key) || "null");
+    localStorage.setItem(key, JSON.stringify(val));
+  } catch (e) { return null; }
+}
+function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+
+/* ---------------- Ruta ---------------- */
+var MODULES = [
+  { n: "00", t: "Terminal y Linux", why: "Todo lo demás pasa aquí", l: [
+    ["Qué es la terminal", "01-que-es-la-terminal.md"], ["Moverse: pwd, ls, cd", "02-moverse.md"],
+    ["Archivos y carpetas", "03-archivos.md"], ["Leer y buscar", "04-leer-y-buscar.md"],
+    ["Tuberías y redirecciones", "05-tuberias.md"], ["Usuarios y permisos", "06-permisos.md"],
+    ["Reto final (comprobar.sh en verde)", "practica/RETO.md"], ["Hito: explorar Franc como caratcore doctor", "hito.md", 1] ] },
+  { n: "01", t: "Git y GitHub", why: "Guardar y compartir código", l: [
+    ["Qué es un repositorio y un commit"], ["status, add, commit, log, diff"], ["Ramas y fusiones"],
+    ["Remotos: clone, pull, push"], ["Pull requests en GitHub"], ["Hito: leer el historial de CaratCore", 0, 1] ] },
+  { n: "02", t: "Go básico", why: "El lenguaje de tus dos proyectos", l: [
+    ["Instalar Go y el primer programa"], ["Variables, tipos y constantes"], ["if, for, switch"],
+    ["Funciones y varios valores de retorno"], ["Slices y maps"], ["Strings y el paquete strings"],
+    ["Hito: explicar cmd/caratcore/main.go", 0, 1] ] },
+  { n: "03", t: "Go intermedio", why: "Leer el código de CaratCore", l: [
+    ["Structs y métodos"], ["Errores: if err != nil"], ["Paquetes e imports"], ["Punteros"],
+    ["Interfaces"], ["Leer y escribir archivos"], ["Hito: explicar internal/osrelease", 0, 1] ] },
+  { n: "04", t: "Tests en Go", why: "Saber que tu código funciona", l: [
+    ["go test y tu primer test"], ["Tests de tabla"], ["Simular el sistema en tests"],
+    ["Hito: añadir un caso de test a CaratCore", 0, 1] ] },
+  { n: "05", t: "Web en Go", why: "La base de Finanzas", l: [
+    ["Cómo funciona HTTP"], ["net/http: tu primer servidor"], ["Rutas y formularios"],
+    ["Plantillas HTML"], ["Hito en Finanzas (por concretar)", 0, 1] ] },
+  { n: "06", t: "SQL y SQLite", why: "Los datos de Finanzas", l: [
+    ["Bases de datos y tablas"], ["SELECT, INSERT, UPDATE, DELETE"], ["SQLite desde Go"],
+    ["Hito en Finanzas (por concretar)", 0, 1] ] },
+  { n: "07", t: "Docker", why: "Cómo corren tus servicios", l: [
+    ["Imagen frente a contenedor"], ["docker run, ps, logs, stop"], ["Dockerfile para Go"],
+    ["Docker Compose"], ["Volúmenes"], ["Hito: cómo despliega CaratCore sus servicios", 0, 1] ] },
+  { n: "08", t: "Servidor", why: "Gestionar Franc", l: [
+    ["SSH: claves y ~/.ssh/config"], ["Copiar archivos: scp"], ["Servicios con systemd"],
+    ["Redes: IP, puertos, Tailscale"], ["Copias de seguridad"], ["Hito: desplegar Finanzas tú solo", 0, 1] ] }
+];
+var progress = store("aprende-progreso") || {};
+var routeEl = document.getElementById("route");
+
+function renderRoute() {
+  var openIdx = MODULES.findIndex(function (m, i) { return !m.l.every(function (_, j) { return progress[i + "-" + j]; }); });
+  var html = "", done = 0, total = 0;
+  MODULES.forEach(function (m, i) {
+    var md = 0;
+    var items = m.l.map(function (l, j) {
+      var id = i + "-" + j, on = !!progress[id];
+      if (on) md++;
+      var link = l[1] ? ' <a href="' + REPO + l[1] + '" target="_blank" rel="noopener">abrir</a>' : "";
+      return '<li><label><input type="checkbox" id="chk-' + id + '" data-id="' + id + '"' + (on ? " checked" : "") + '><span class="' + (l[2] ? "hito" : "") + '">' + esc(l[0]) + '</span></label>' + (link ? '<span style="padding-left:36px;display:block;margin-top:-6px">' + link + '</span>' : "") + "</li>";
+    }).join("");
+    done += md; total += m.l.length;
+    var cls = md === m.l.length ? "done" : md > 0 ? "started" : "";
+    var note = i > 0 && i < 5 ? "" : i >= 5 ? "" : "";
+    if (i > 0 && !m.l.some(function (l) { return l[1]; })) note = '<p class="note" style="padding:6px 10px">Las lecciones de este módulo aún no están escritas: se preparan cuando termines el anterior.</p>';
+    html += '<li class="mod ' + cls + '"><span class="dot">' + (md === m.l.length ? "✓" : m.n) + '</span><details' + (i === openIdx ? " open" : "") + '><summary><h3>' + esc(m.t) + '</h3><span class="why">' + esc(m.why) + '</span><span class="count">' + md + "/" + m.l.length + "</span></summary>" + note + '<ul class="lessons">' + items + "</ul></details></li>";
+  });
+  var keepOpen = Array.prototype.map.call(routeEl.querySelectorAll("details"), function (d) { return d.open; });
+  routeEl.innerHTML = html;
+  if (keepOpen.length) routeEl.querySelectorAll("details").forEach(function (d, k) { d.open = keepOpen[k]; });
+  var pct = total ? Math.round(done / total * 100) : 0;
+  document.getElementById("ring").setAttribute("stroke-dashoffset", String(314.16 * (1 - done / total)));
+  document.getElementById("ringNum").textContent = pct + "%";
+  document.getElementById("ringLbl").textContent = done + " de " + total + " pasos";
+}
+routeEl.addEventListener("change", function (e) {
+  var id = e.target.getAttribute("data-id");
+  if (!id) return;
+  if (e.target.checked) progress[id] = true; else delete progress[id];
+  store("aprende-progreso", progress);
+  renderRoute();
+});
+renderRoute();
+
+/* ---------------- Sistema de archivos de mentira ---------------- */
+function dir(children) { return { type: "dir", mode: "drwxr-xr-x", children: children || {} }; }
+function file(content, mode) { return { type: "file", mode: mode || "-rw-r--r--", content: content || "" }; }
+function makeLog() {
+  var out = [];
+  for (var i = 1; i <= 60; i++) {
+    var h = String(10 + Math.floor(i / 6)).padStart(2, "0") + ":" + String((i * 7) % 60).padStart(2, "0");
+    if (i % 7 === 0) out.push("2026-11-20 " + h + " ERROR no se pudo conectar con la base de datos");
+    else if (i % 5 === 0) out.push("2026-11-20 " + h + " WARN respuesta lenta");
+    else out.push("2026-11-20 " + h + " INFO petición atendida");
+  }
+  return out.join("\n") + "\n";
+}
+function makeFS() {
+  return dir({
+    etc: dir({
+      "os-release": file('PRETTY_NAME="Debian GNU/Linux 13 (trixie)"\nNAME="Debian GNU/Linux"\nVERSION_ID="13"\nVERSION="13 (trixie)"\nID=debian\n'),
+      group: file("root:x:0:\nsudo:x:27:bryan\nbryan:x:1000:\ndocker:x:988:bryan\n"),
+      hostname: file("franc\n")
+    }),
+    home: dir({
+      bryan: dir({
+        ".bashrc": file("# Configuración de bash\nalias ll='ls -la'\n"),
+        "notas.txt": file("Comprar café\nRevisar Franc\nAprender Go\n"),
+        "hola.sh": file('#!/usr/bin/env bash\necho "¡Hola desde Franc! Has ejecutado tu primer script."\n'),
+        "registro.log": file(makeLog()),
+        finanzas: dir({ "README.md": file("# Finanzas\nWeb en Go que corre en Docker en Franc.\n") }),
+        practica: dir({
+          descargas: dir({
+            "foto-playa.jpg": file(""), "foto-cumple.jpg": file(""), "informe.pdf": file(""),
+            "cache1.tmp": file(""), "cache2.tmp": file("")
+          })
+        })
+      })
+    }),
+    proc: dir({ meminfo: file("MemTotal:       16243512 kB\nMemFree:         9512044 kB\nMemAvailable:   12873420 kB\nBuffers:          312440 kB\n", "-r--r--r--") }),
+    tmp: dir({}),
+    var: dir({ log: dir({ syslog: file([
+      "nov 20 09:58:01 franc systemd[1]: Started docker.service.",
+      "nov 20 09:58:03 franc tailscaled[612]: conectado",
+      "nov 20 10:00:00 franc CRON[901]: (root) CMD (copia de seguridad)",
+      "nov 20 10:02:11 franc sshd[1033]: Accepted publickey for bryan",
+      "nov 20 10:02:12 franc systemd-logind[480]: New session 7 of user bryan.",
+      "nov 20 10:15:40 franc kernel: eth0: link up",
+      "nov 20 10:20:05 franc dockerd[700]: container finanzas started",
+      "nov 20 10:31:17 franc sshd[1102]: Disconnected from user bryan"
+    ].join("\n") + "\n") }) })
+  });
+}
+var HOME = ["home", "bryan"];
+var fs, cwd, hist = [], histPos = 0, last = {};
+
+function segs(path) {
+  var start;
+  if (path === "~" || path.indexOf("~/") === 0) { start = HOME.slice(); path = path.slice(1); }
+  else if (path.charAt(0) === "/") start = [];
+  else start = cwd.slice();
+  path.split("/").forEach(function (p) {
+    if (!p || p === ".") return;
+    if (p === "..") start.pop(); else start.push(p);
+  });
+  return start;
+}
+function nodeAt(s) {
+  var n = fs;
+  for (var i = 0; i < s.length; i++) {
+    if (!n || n.type !== "dir") return null;
+    n = n.children[s[i]];
+  }
+  return n || null;
+}
+function pathStr(s) { return "/" + s.join("/"); }
+function shortPath(s) {
+  var p = pathStr(s), h = pathStr(HOME);
+  if (p === h) return "~";
+  if (p.indexOf(h + "/") === 0) return "~" + p.slice(h.length);
+  return p;
+}
+function clone(n) { return JSON.parse(JSON.stringify(n)); }
+function globRe(pat) {
+  return new RegExp("^" + pat.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*").replace(/\?/g, ".") + "$");
+}
+
+/* ---------------- Intérprete ---------------- */
+function tokenize(line) {
+  var toks = [], cur = "", q = null, quoted = false, i = 0;
+  function push() { if (cur !== "" || quoted) toks.push({ v: cur, q: quoted }); cur = ""; quoted = false; }
+  for (; i < line.length; i++) {
+    var c = line.charAt(i);
+    if (q) { if (c === q) q = null; else cur += c; continue; }
+    if (c === '"' || c === "'") { q = c; quoted = true; continue; }
+    if (c === " " || c === "\t") { push(); continue; }
+    if (c === "|") { push(); toks.push({ op: "|" }); continue; }
+    if (c === "&" && line.charAt(i + 1) === "&") { push(); toks.push({ op: "&&" }); i++; continue; }
+    if (c === ">") { push(); if (line.charAt(i + 1) === ">") { toks.push({ op: ">>" }); i++; } else toks.push({ op: ">" }); continue; }
+    cur += c;
+  }
+  if (q) return { error: "falta cerrar las comillas " + q };
+  push();
+  return { toks: toks };
+}
+function expand(tok) {
+  if (tok.q || !/[*?]/.test(tok.v)) return [tok.v];
+  var slash = tok.v.lastIndexOf("/");
+  var dpart = slash >= 0 ? tok.v.slice(0, slash + 1) : "";
+  var base = tok.v.slice(slash + 1);
+  var d = nodeAt(segs(dpart || "."));
+  if (!d || d.type !== "dir") return [tok.v];
+  var re = globRe(base);
+  var m = Object.keys(d.children).sort().filter(function (n) { return (base.charAt(0) === "." || n.charAt(0) !== ".") && re.test(n); });
+  return m.length ? m.map(function (n) { return dpart + n; }) : [tok.v];
+}
+function flagsOf(args) {
+  var f = "", rest = [];
+  args.forEach(function (a) { if (/^-[a-zA-Z]+$/.test(a)) f += a.slice(1); else rest.push(a); });
+  return { f: f, rest: rest };
+}
+function lines(s) { if (!s) return []; var l = s.split("\n"); if (l[l.length - 1] === "") l.pop(); return l; }
+function R(out, err) { return { out: out || "", err: err || "", code: err ? 1 : 0 }; }
+function readFile(p, cmd) {
+  var n = nodeAt(segs(p));
+  if (!n) return { err: cmd + ": " + p + ": No existe el archivo o el directorio" };
+  if (n.type === "dir") return { err: cmd + ": " + p + ": Es un directorio" };
+  return { text: n.content };
+}
+function writeFile(p, text, append) {
+  var s = segs(p), name = s.pop(), d = nodeAt(s);
+  if (!d || d.type !== "dir") return "no existe la carpeta " + pathStr(s);
+  var n = d.children[name];
+  if (n && n.type === "dir") return p + ": Es un directorio";
+  if (n) n.content = append ? n.content + text : text;
+  else d.children[name] = file(text);
+  return "";
+}
+function numFlag(args, def) {
+  var n = def, rest = [];
+  for (var i = 0; i < args.length; i++) {
+    if (args[i] === "-n" && args[i + 1]) { n = parseInt(args[++i], 10); }
+    else if (/^-\d+$/.test(args[i])) n = parseInt(args[i].slice(1), 10);
+    else rest.push(args[i]);
+  }
+  return { n: isNaN(n) ? def : n, rest: rest };
+}
+function inputOf(files, stdin, cmd) {
+  if (!files.length) return { text: stdin || "" };
+  var t = "";
+  for (var i = 0; i < files.length; i++) { var r = readFile(files[i], cmd); if (r.err) return r; t += r.text; }
+  return { text: t };
+}
+
+var HELP = [
+  "Comandos del simulador:",
+  "  pwd  ls [-l -a -h]  cd  mkdir [-p]  touch  cp [-r]  mv  rm [-r]  rmdir",
+  "  cat  echo  head  tail [-n N]  grep [-i -n -c -v]  find RUTA -name PATRÓN [-type f|d]",
+  "  wc [-l]  sort [-r -n]  uniq [-c]  chmod  ./script.sh",
+  "  whoami  hostname  id  groups  nproc  date  history  clear  man COMANDO",
+  "Operadores: tubería |, redirección > y >>, encadenar con &&, comodines * y ?",
+  "Teclas: Tab autocompleta, ↑ y ↓ recorren el historial."
+].join("\n");
+var MAN = {
+  pwd: "pwd: dice en qué carpeta estás (print working directory).",
+  ls: "ls: lista el contenido. -l lista larga, -a muestra ocultos, -h tamaños legibles.",
+  cd: "cd RUTA: cambia de carpeta. cd sin nada vuelve a ~. cd .. sube un nivel.",
+  mkdir: "mkdir NOMBRE: crea una carpeta. -p crea también las de en medio.",
+  touch: "touch ARCHIVO: crea un archivo vacío si no existe.",
+  cp: "cp ORIGEN DESTINO: copia. -r para carpetas.",
+  mv: "mv ORIGEN DESTINO: mueve o renombra.",
+  rm: "rm ARCHIVO: borra sin papelera. -r para carpetas.",
+  cat: "cat ARCHIVO: muestra el contenido.",
+  grep: "grep TEXTO ARCHIVO: muestra las líneas que contienen TEXTO. -i ignora mayúsculas, -n numera, -c cuenta, -v invierte.",
+  find: "find RUTA -name 'PATRÓN': busca archivos por nombre.",
+  chmod: "chmod MODO ARCHIVO: cambia permisos. Ej.: chmod +x script.sh, chmod 644 notas.txt.",
+  wc: "wc -l: cuenta líneas.", sort: "sort: ordena líneas. -r al revés, -n como números.",
+  uniq: "uniq: quita repetidas seguidas. -c cuenta cuántas veces sale cada una.",
+  head: "head -n N: las primeras N líneas.", tail: "tail -n N: las últimas N líneas.",
+  echo: "echo TEXTO: escribe el texto. Con > lo guarda en un archivo."
+};
+
+var CMDS = {
+  pwd: function () { return R(pathStr(cwd) + "\n"); },
+  whoami: function () { return R("bryan\n"); },
+  hostname: function () { return R("franc\n"); },
+  nproc: function () { return R("4\n"); },
+  id: function () { return R("uid=1000(bryan) gid=1000(bryan) grupos=1000(bryan),27(sudo),988(docker)\n"); },
+  groups: function () { return R("bryan sudo docker\n"); },
+  date: function () { return R(new Date().toLocaleString("es-ES", { dateStyle: "full", timeStyle: "medium" }) + "\n"); },
+  help: function () { return R(HELP + "\n"); },
+  man: function (a) { return a[0] && MAN[a[0]] ? R(MAN[a[0]] + "\n") : R("", "man: no hay entrada para " + (a[0] || "(nada)") + ". Prueba help."); },
+  history: function () { return R(hist.map(function (h, i) { return String(i + 1).padStart(4) + "  " + h; }).join("\n") + "\n"); },
+  sudo: function () { return R("", "sudo: en el simulador no hace falta. En Franc ejecuta un comando como administrador: úsalo con cuidado."); },
+  echo: function (a) { return R(a.join(" ") + "\n"); },
+  ls: function (args) {
+    var o = flagsOf(args), long = o.f.indexOf("l") >= 0, all = o.f.indexOf("a") >= 0;
+    var targets = o.rest.length ? o.rest : ["."], out = [], err = [];
+    targets.forEach(function (t) {
+      var n = nodeAt(segs(t));
+      if (!n) { err.push("ls: no se puede acceder a '" + t + "': No existe el archivo o el directorio"); return; }
+      var names = n.type === "dir" ? Object.keys(n.children).sort(function (x, y) { return x.replace(/^\./, "").localeCompare(y.replace(/^\./, "")); }) : [t];
+      if (n.type === "dir" && !all) names = names.filter(function (x) { return x.charAt(0) !== "."; });
+      if (n.type === "dir" && all) names = [".", ".."].concat(names);
+      if (targets.length > 1 && n.type === "dir") out.push(t + ":");
+      if (long) {
+        names.forEach(function (x) {
+          var c = n.type === "dir" ? (x === "." || x === ".." ? dir() : n.children[x]) : n;
+          var size = c.type === "dir" ? 4096 : c.content.length;
+          out.push(c.mode + " 1 bryan bryan " + String(size).padStart(5) + " nov 20 10:00 " + x);
+        });
+      } else if (names.length) out.push(names.join("  "));
+    });
+    return R(out.length ? out.join("\n") + "\n" : "", err.join("\n"));
+  },
+  cd: function (a) {
+    var t = a[0] || "~";
+    if (t === "-") { var p = last.prevCwd || cwd; last.prevCwd = cwd; cwd = p; return R(pathStr(cwd) + "\n"); }
+    var s = segs(t), n = nodeAt(s);
+    if (!n) return R("", "cd: " + t + ": No existe el archivo o el directorio");
+    if (n.type !== "dir") return R("", "cd: " + t + ": No es un directorio");
+    last.prevCwd = cwd; cwd = s; return R();
+  },
+  mkdir: function (args) {
+    var o = flagsOf(args), err = [];
+    if (!o.rest.length) return R("", "mkdir: falta un operando");
+    o.rest.forEach(function (p) {
+      var s = segs(p), cur = fs;
+      for (var i = 0; i < s.length; i++) {
+        var nx = cur.children[s[i]], lastSeg = i === s.length - 1;
+        if (!nx) {
+          if (!lastSeg && o.f.indexOf("p") < 0) { err.push("mkdir: no se puede crear el directorio «" + p + "»: No existe el archivo o el directorio"); return; }
+          nx = cur.children[s[i]] = dir();
+        } else if (lastSeg && o.f.indexOf("p") < 0) { err.push("mkdir: no se puede crear el directorio «" + p + "»: El archivo ya existe"); return; }
+        if (nx.type !== "dir") { err.push("mkdir: «" + p + "»: no es un directorio"); return; }
+        cur = nx;
+      }
+    });
+    return R("", err.join("\n"));
+  },
+  touch: function (args) {
+    var err = [];
+    if (!args.length) return R("", "touch: falta un operando");
+    args.forEach(function (p) { if (!nodeAt(segs(p))) { var e = writeFile(p, "", false); if (e) err.push("touch: " + e); } });
+    return R("", err.join("\n"));
+  },
+  cat: function (args, stdin) { var r = inputOf(args, stdin, "cat"); return r.err ? R("", r.err) : R(r.text); },
+  rm: function (args) {
+    var o = flagsOf(args), rec = /r|R/.test(o.f), err = [];
+    if (!o.rest.length) return R("", "rm: falta un operando");
+    o.rest.forEach(function (p) {
+      var s = segs(p), name = s[s.length - 1], parent = nodeAt(s.slice(0, -1)), n = nodeAt(s);
+      if (!n) { if (o.f.indexOf("f") < 0) err.push("rm: no se puede borrar '" + p + "': No existe el archivo o el directorio"); return; }
+      if (!s.length) { err.push("rm: ni en un simulador vamos a borrar /"); return; }
+      if (n.type === "dir" && !rec) { err.push("rm: no se puede borrar '" + p + "': Es un directorio (usa -r)"); return; }
+      if (pathStr(cwd) === pathStr(s) || pathStr(cwd).indexOf(pathStr(s) + "/") === 0) { err.push("rm: no puedes borrar la carpeta en la que estás"); return; }
+      delete parent.children[name];
+    });
+    return R("", err.join("\n"));
+  },
+  rmdir: function (args) {
+    var err = [];
+    args.forEach(function (p) {
+      var s = segs(p), n = nodeAt(s);
+      if (!n) err.push("rmdir: '" + p + "': No existe el archivo o el directorio");
+      else if (n.type !== "dir") err.push("rmdir: '" + p + "': No es un directorio");
+      else if (Object.keys(n.children).length) err.push("rmdir: '" + p + "': El directorio no está vacío");
+      else delete nodeAt(s.slice(0, -1)).children[s[s.length - 1]];
+    });
+    return R("", err.join("\n"));
+  },
+  mv: function (args) { return moveCopy(args, false); },
+  cp: function (args) { return moveCopy(args, true); },
+  grep: function (args, stdin) {
+    var o = flagsOf(args);
+    if (!o.rest.length) return R("", "grep: falta el texto a buscar");
+    var pat = o.rest[0], files = o.rest.slice(1), ci = o.f.indexOf("i") >= 0, out = [], err = [], count = 0;
+    var p = ci ? pat.toLowerCase() : pat;
+    var sources = files.length ? files : [null];
+    sources.forEach(function (f) {
+      var text;
+      if (f === null) text = stdin || "";
+      else { var r = readFile(f, "grep"); if (r.err) { err.push(r.err); return; } text = r.text; }
+      var c = 0;
+      lines(text).forEach(function (ln, i) {
+        var hit = (ci ? ln.toLowerCase() : ln).indexOf(p) >= 0;
+        if (o.f.indexOf("v") >= 0) hit = !hit;
+        if (!hit) return;
+        c++;
+        if (o.f.indexOf("c") < 0) out.push((files.length > 1 ? f + ":" : "") + (o.f.indexOf("n") >= 0 ? (i + 1) + ":" : "") + ln);
+      });
+      if (o.f.indexOf("c") >= 0) out.push((files.length > 1 ? f + ":" : "") + c);
+      count += c;
+    });
+    var res = R(out.length ? out.join("\n") + "\n" : "", err.join("\n"));
+    if (!err.length && !count && o.f.indexOf("c") < 0) res.code = 1;
+    return res;
+  },
+  wc: function (args, stdin) {
+    var o = flagsOf(args), r = inputOf(o.rest, stdin, "wc");
+    if (r.err) return R("", r.err);
+    var l = (r.text.match(/\n/g) || []).length;
+    if (o.f.indexOf("l") >= 0) return R(l + (o.rest.length ? " " + o.rest.join(" ") : "") + "\n");
+    var w = r.text.split(/\s+/).filter(Boolean).length;
+    return R(l + " " + w + " " + r.text.length + (o.rest.length ? " " + o.rest.join(" ") : "") + "\n");
+  },
+  head: function (args, stdin) { var o = numFlag(args, 10), r = inputOf(o.rest, stdin, "head"); if (r.err) return R("", r.err); var l = lines(r.text).slice(0, o.n); return R(l.length ? l.join("\n") + "\n" : ""); },
+  tail: function (args, stdin) { var o = numFlag(args, 10), r = inputOf(o.rest, stdin, "tail"); if (r.err) return R("", r.err); var l = lines(r.text); l = o.n > 0 ? l.slice(-o.n) : []; return R(l.length ? l.join("\n") + "\n" : ""); },
+  sort: function (args, stdin) {
+    var o = flagsOf(args), r = inputOf(o.rest, stdin, "sort");
+    if (r.err) return R("", r.err);
+    var l = lines(r.text);
+    if (o.f.indexOf("n") >= 0) l.sort(function (a, b) { return (parseFloat(a) || 0) - (parseFloat(b) || 0); });
+    else l.sort(function (a, b) { return a.localeCompare(b, "es"); });
+    if (o.f.indexOf("r") >= 0) l.reverse();
+    return R(l.length ? l.join("\n") + "\n" : "");
+  },
+  uniq: function (args, stdin) {
+    var o = flagsOf(args), r = inputOf(o.rest, stdin, "uniq");
+    if (r.err) return R("", r.err);
+    var out = [], prev = null, n = 0;
+    function flush() { if (prev !== null) out.push(o.f.indexOf("c") >= 0 ? String(n).padStart(7) + " " + prev : prev); }
+    lines(r.text).forEach(function (ln) { if (ln === prev) n++; else { flush(); prev = ln; n = 1; } });
+    flush();
+    return R(out.length ? out.join("\n") + "\n" : "");
+  },
+  find: function (args) {
+    var start = ".", name = null, type = null, i = 0;
+    if (args[0] && args[0].charAt(0) !== "-") { start = args[0]; i = 1; }
+    for (; i < args.length; i++) {
+      if (args[i] === "-name") name = args[++i];
+      else if (args[i] === "-type") type = args[++i];
+      else return R("", "find: opción desconocida «" + args[i] + "» (el simulador entiende -name y -type)");
+    }
+    var root = nodeAt(segs(start));
+    if (!root) return R("", "find: '" + start + "': No existe el archivo o el directorio");
+    var re = name ? globRe(name) : null, out = [];
+    (function walk(n, p, nm) {
+      var okType = !type || (type === "d" ? n.type === "dir" : n.type === "file");
+      if (okType && (!re || re.test(nm))) out.push(p);
+      if (n.type === "dir") Object.keys(n.children).sort().forEach(function (k) { walk(n.children[k], (p === "/" ? "" : p) + "/" + k, k); });
+    })(root, start.replace(/\/$/, "") || "/", start.split("/").pop());
+    return R(out.length ? out.join("\n") + "\n" : "");
+  },
+  chmod: function (args) {
+    if (args.length < 2) return R("", "chmod: uso: chmod MODO ARCHIVO");
+    var mode = args[0], err = [];
+    args.slice(1).forEach(function (p) {
+      var n = nodeAt(segs(p));
+      if (!n) { err.push("chmod: no se puede acceder a '" + p + "': No existe el archivo o el directorio"); return; }
+      var bits = n.mode.slice(1).split("");
+      if (/^[0-7]{3}$/.test(mode)) {
+        bits = mode.split("").map(function (d) { d = +d; return (d & 4 ? "r" : "-") + (d & 2 ? "w" : "-") + (d & 1 ? "x" : "-"); }).join("").split("");
+      } else {
+        var m = /^([ugoa]*)([+-])([rwx]+)$/.exec(mode);
+        if (!m) { err.push("chmod: modo no válido: «" + mode + "»"); return; }
+        var who = m[1] || "a";
+        if (who.indexOf("a") >= 0) who = "ugo";
+        who.split("").forEach(function (w) {
+          var off = { u: 0, g: 3, o: 6 }[w];
+          m[3].split("").forEach(function (b) { var k = off + "rwx".indexOf(b); bits[k] = m[2] === "+" ? b : "-"; });
+        });
+      }
+      n.mode = n.mode.charAt(0) + bits.join("");
+    });
+    return R("", err.join("\n"));
+  }
+};
+function moveCopy(args, copy) {
+  var o = flagsOf(args), cmd = copy ? "cp" : "mv";
+  if (o.rest.length < 2) return R("", cmd + ": falta el destino");
+  var dest = o.rest[o.rest.length - 1], srcs = o.rest.slice(0, -1), dn = nodeAt(segs(dest)), err = [];
+  if (srcs.length > 1 && (!dn || dn.type !== "dir")) return R("", cmd + ": el destino '" + dest + "' no es un directorio");
+  srcs.forEach(function (src) {
+    var ss = segs(src), sn = nodeAt(ss);
+    if (!sn) { err.push(cmd + ": no se puede efectuar stat sobre '" + src + "': No existe el archivo o el directorio"); return; }
+    if (copy && sn.type === "dir" && !/r|R/.test(o.f)) { err.push("cp: se omite el directorio '" + src + "' (usa -r)"); return; }
+    var target = dn && dn.type === "dir" ? segs(dest).concat([ss[ss.length - 1]]) : segs(dest);
+    if (pathStr(target).indexOf(pathStr(ss) + "/") === 0) { err.push(cmd + ": no se puede meter una carpeta dentro de sí misma"); return; }
+    var tp = nodeAt(target.slice(0, -1));
+    if (!tp || tp.type !== "dir") { err.push(cmd + ": no existe la carpeta de destino"); return; }
+    tp.children[target[target.length - 1]] = copy ? clone(sn) : sn;
+    if (!copy) delete nodeAt(ss.slice(0, -1)).children[ss[ss.length - 1]];
+  });
+  return R("", err.join("\n"));
+}
+function runScript(path, depth) {
+  var n = nodeAt(segs(path));
+  if (!n) return R("", "bash: " + path + ": No existe el archivo o el directorio");
+  if (n.type === "dir") return R("", "bash: " + path + ": Es un directorio");
+  if (n.mode.charAt(3) !== "x") return R("", "bash: " + path + ": Permiso denegado");
+  var out = "", err = "";
+  lines(n.content).forEach(function (ln) {
+    if (!ln.trim() || ln.trim().charAt(0) === "#") return;
+    var r = execLine(ln, depth + 1);
+    out += r.out; if (r.err) err += (err ? "\n" : "") + r.err;
+  });
+  last.ranScript = pathStr(segs(path));
+  return R(out, err);
+}
+function runSimple(words, stdin, depth) {
+  var name = words[0], args = words.slice(1);
+  if (name.indexOf("/") >= 0) return depth > 3 ? R("", "demasiados scripts anidados") : runScript(name, depth);
+  if (name === "bash" && args[0]) {
+    var sn = nodeAt(segs(args[0]));
+    if (sn && sn.type === "file") { var m = sn.mode; sn.mode = m.slice(0, 3) + "x" + m.slice(4); var r = runScript(args[0], depth); sn.mode = m; return r; }
+  }
+  var fn = CMDS[name];
+  if (!fn) return R("", name + ": orden no encontrada. Escribe help para ver los comandos.");
+  return fn(args, stdin);
+}
+function execLine(line, depth) {
+  var t = tokenize(line);
+  if (t.error) return R("", "bash: " + t.error);
+  var chains = [[]];
+  t.toks.forEach(function (k) { if (k.op === "&&") chains.push([]); else chains[chains.length - 1].push(k); });
+  var out = "", err = "", code = 0;
+  for (var c = 0; c < chains.length; c++) {
+    var toks = chains[c];
+    if (!toks.length) { if (chains.length > 1) { err = "bash: error de sintaxis cerca de «&&»"; code = 2; break; } continue; }
+    var redir = null;
+    var ri = toks.findIndex(function (k) { return k.op === ">" || k.op === ">>"; });
+    if (ri >= 0) {
+      if (!toks[ri + 1] || toks[ri + 1].op) { err = "bash: falta el archivo después de " + toks[ri].op; code = 2; break; }
+      redir = { append: toks[ri].op === ">>", file: toks[ri + 1].v };
+      toks = toks.slice(0, ri).concat(toks.slice(ri + 2));
+    }
+    var stages = [[]];
+    toks.forEach(function (k) { if (k.op === "|") stages.push([]); else stages[stages.length - 1].push(k); });
+    var data = "", res = R();
+    for (var s = 0; s < stages.length; s++) {
+      if (!stages[s].length) { res = R("", "bash: error de sintaxis cerca de «|»"); break; }
+      var words = [];
+      stages[s].forEach(function (k) { words = words.concat(expand(k)); });
+      res = runSimple(words, data, depth || 0);
+      if (res.err) err += (err ? "\n" : "") + res.err;
+      data = res.out;
+    }
+    code = res.code;
+    if (redir) { var we = writeFile(redir.file, data, redir.append); if (we) { err += (err ? "\n" : "") + "bash: " + we; code = 1; } }
+    else out += data;
+    if (code !== 0) break;
+  }
+  return { out: out, err: err, code: code };
+}
+
+/* ---------------- Interfaz del terminal ---------------- */
+var outEl = document.getElementById("out"), cmdEl = document.getElementById("cmd"), promptEl = document.getElementById("promptLbl");
+function promptHTML() { return '<span class="u">bryan@franc</span>:<span class="p">' + esc(shortPath(cwd)) + "</span>$"; }
+function print(html) { var d = document.createElement("div"); d.innerHTML = html; outEl.appendChild(d); outEl.scrollTop = outEl.scrollHeight; }
+function refreshPrompt() { promptEl.innerHTML = promptHTML(); renderTree(); }
+
+function run(line) {
+  print(promptHTML() + " " + esc(line));
+  if (!line.trim()) return;
+  hist.push(line); histPos = hist.length;
+  if (line.trim() === "clear") { outEl.innerHTML = ""; return; }
+  last.ranScript = null;
+  var res = execLine(line, 0);
+  if (res.out) print(esc(res.out.replace(/\n$/, "")));
+  if (res.err) print('<span class="e">' + esc(res.err) + "</span>");
+  last.line = line.trim(); last.out = res.out; last.code = res.code;
+  last.words = (tokenize(line).toks || []).filter(function (k) { return !k.op; }).map(function (k) { return k.v; });
+  refreshPrompt();
+  checkMission();
+}
+document.getElementById("form").addEventListener("submit", function (e) { e.preventDefault(); var v = cmdEl.value; cmdEl.value = ""; run(v); });
+cmdEl.addEventListener("keydown", function (e) {
+  if (e.key === "ArrowUp") { e.preventDefault(); if (histPos > 0) cmdEl.value = hist[--histPos]; }
+  else if (e.key === "ArrowDown") { e.preventDefault(); if (histPos < hist.length - 1) cmdEl.value = hist[++histPos]; else { histPos = hist.length; cmdEl.value = ""; } }
+  else if (e.key === "Tab") { e.preventDefault(); complete(); }
+  else if (e.key === "l" && e.ctrlKey) { e.preventDefault(); outEl.innerHTML = ""; }
+});
+function complete() {
+  var v = cmdEl.value, m = /(\S*)$/.exec(v), word = m[1], before = v.slice(0, v.length - word.length);
+  if (!before.trim()) {
+    var cs = Object.keys(CMDS).filter(function (c) { return c.indexOf(word) === 0; });
+    if (cs.length === 1) cmdEl.value = cs[0] + " "; else if (cs.length > 1) print(promptHTML() + " " + esc(v) + "\n" + esc(cs.join("  ")));
+    return;
+  }
+  var slash = word.lastIndexOf("/"), dpart = slash >= 0 ? word.slice(0, slash + 1) : "", base = word.slice(slash + 1);
+  var d = nodeAt(segs(dpart || "."));
+  if (!d || d.type !== "dir") return;
+  var opts = Object.keys(d.children).filter(function (n) { return n.indexOf(base) === 0 && (base.charAt(0) === "." || n.charAt(0) !== "."); }).sort();
+  if (opts.length === 1) { var n = opts[0]; cmdEl.value = before + dpart + n + (d.children[n].type === "dir" ? "/" : " "); }
+  else if (opts.length > 1) {
+    var pre = opts.reduce(function (a, b) { var i = 0; while (i < a.length && a[i] === b[i]) i++; return a.slice(0, i); });
+    if (pre.length > base.length) cmdEl.value = before + dpart + pre;
+    else print(promptHTML() + " " + esc(v) + "\n" + esc(opts.join("  ")));
+  }
+}
+
+function renderTree() {
+  var here = pathStr(cwd);
+  function li(n, name, p) {
+    var hid = name.charAt(0) === "." ? " hidden" : "";
+    if (n.type !== "dir") return '<li class="' + hid + '"><span class="' + (n.mode.charAt(3) === "x" ? "x" : "") + '">' + esc(name) + (n.mode.charAt(3) === "x" ? "*" : "") + "</span></li>";
+    var label = '<button type="button" class="dir' + (p === here ? " here" : "") + '" data-path="' + esc(p) + '">' + esc(name) + "/</button>" + (p === here ? ' <span class="note">← estás aquí</span>' : "");
+    var keys = Object.keys(n.children).sort();
+    var onPath = here === p || here.indexOf(p === "/" ? "/" : p + "/") === 0 || p === "/" || p === "/home";
+    var kids = keys.length && (onPath || p.split("/").length <= 2) ? "<ul>" + keys.map(function (k) { return li(n.children[k], k, (p === "/" ? "" : p) + "/" + k); }).join("") + "</ul>" : (keys.length ? ' <span class="note">…</span>' : "");
+    return "<li" + (hid ? ' class="hidden"' : "") + ">" + label + kids + "</li>";
+  }
+  document.getElementById("tree").innerHTML = "<ul>" + li(fs, "", "/").replace('data-path="/">/</button>', 'data-path="/">/</button>') + "</ul>";
+}
+document.getElementById("tree").addEventListener("click", function (e) {
+  var p = e.target.getAttribute && e.target.getAttribute("data-path");
+  if (!p) return;
+  cmdEl.value = "cd " + p; cmdEl.focus();
+});
+
+/* ---------------- Misiones ---------------- */
+var errCount = lines(makeLog()).filter(function (l) { return l.indexOf("ERROR") >= 0; }).length;
+function at(p) { return nodeAt(segs(p)); }
+var MISSIONS = [
+  { t: "¿Dónde estás? Pregúntaselo a la terminal.", h: "Es un comando de tres letras: print working directory.",
+    ok: function () { return last.words[0] === "pwd"; } },
+  { t: "Lista lo que hay en tu carpeta personal, incluidos los archivos ocultos.", h: "ls con la opción -a. Los ocultos empiezan por punto.",
+    ok: function () { return last.words[0] === "ls" && /a/.test(last.words.filter(function (w) { return w.charAt(0) === "-"; }).join("")) && pathStr(cwd) === "/home/bryan" && last.code === 0; } },
+  { t: "Lee qué hay dentro de notas.txt.", h: "El comando más corto para mostrar un archivo entero es cat.",
+    ok: function () { return last.words[0] === "cat" && last.out.indexOf("Comprar café") >= 0; } },
+  { t: "Viaja a la carpeta donde Franc guarda sus registros: /var/log.", h: "cd con una ruta absoluta (empieza por /). Usa Tab para autocompletar.",
+    ok: function () { return pathStr(cwd) === "/var/log"; } },
+  { t: "Muestra solo las 3 últimas líneas de syslog.", h: "tail tiene la opción -n para decir cuántas líneas.",
+    ok: function () { return last.words[0] === "tail" && lines(last.out).length === 3; } },
+  { t: "Vuelve a tu carpeta personal con el comando más corto posible.", h: "cd sin nada más te lleva a ~.",
+    ok: function () { return pathStr(cwd) === "/home/bryan" && last.words[0] === "cd"; } },
+  { t: "Dentro de practica/, crea una carpeta llamada fotos.", h: "mkdir practica/fotos (o entra primero con cd practica).",
+    ok: function () { var n = at("/home/bryan/practica/fotos"); return n && n.type === "dir"; } },
+  { t: "Mueve las dos fotos .jpg de practica/descargas a practica/fotos.", h: "mv con el comodín *.jpg. Ejemplo parecido: mv *.txt docs/",
+    ok: function () { var f = at("/home/bryan/practica/fotos"), d = at("/home/bryan/practica/descargas"); return f && Object.keys(f.children).filter(function (k) { return /\.jpg$/.test(k); }).length === 2 && (!d || !Object.keys(d.children).some(function (k) { return /\.jpg$/.test(k); })); } },
+  { t: "Borra todos los archivos .tmp de practica/descargas.", h: "Primero mira qué vas a borrar con ls ...*.tmp; luego cambia ls por rm.",
+    ok: function () { var d = at("/home/bryan/practica/descargas"); return !d || !Object.keys(d.children).some(function (k) { return /\.tmp$/.test(k); }); } },
+  { t: "¿Cuántas líneas de registro.log contienen ERROR? Haz que la terminal te dé solo el número.", h: "grep -c, o grep con una tubería hacia wc -l.",
+    ok: function () { return last.out.trim() === String(errCount) && last.line.indexOf("ERROR") >= 0; } },
+  { t: "Guarda los nombres de todo lo que hay en ~ en un archivo lista.txt.", h: "ls y la redirección >.",
+    ok: function () { var n = at("/home/bryan/lista.txt"); return n && n.type === "file" && n.content.indexOf("notas.txt") >= 0; } },
+  { t: "hola.sh no se deja ejecutar. Dale permiso y ejecútalo con ./hola.sh", h: "chmod +x hola.sh y después ./hola.sh. Mira ls -l antes y después.",
+    ok: function () { return last.ranScript === "/home/bryan/hola.sh" && last.code === 0; } }
+];
+var mi = 0;
+function showMission() {
+  var done = mi >= MISSIONS.length;
+  document.getElementById("mstep").textContent = done ? MISSIONS.length + "/" + MISSIONS.length : (mi + 1) + "/" + MISSIONS.length;
+  document.getElementById("mbar").style.width = (mi / MISSIONS.length * 100) + "%";
+  document.getElementById("mtext").textContent = done ? "¡Todas superadas! Ya estás listo para el reto de verdad en Franc (practica/RETO.md)." : MISSIONS[mi].t;
+  var h = document.getElementById("mhint"); h.hidden = true; h.textContent = done ? "" : MISSIONS[mi].h;
+  document.getElementById("hintBtn").hidden = done; document.getElementById("skipBtn").hidden = done;
+}
+function checkMission() {
+  if (mi >= MISSIONS.length) return;
+  var ok = false;
+  try { ok = MISSIONS[mi].ok(); } catch (e) { ok = false; }
+  if (ok) { print('<span class="ok">✔ Misión ' + (mi + 1) + " cumplida.</span>"); mi++; showMission(); }
+}
+document.getElementById("hintBtn").addEventListener("click", function () { document.getElementById("mhint").hidden = false; });
+document.getElementById("skipBtn").addEventListener("click", function () { mi++; showMission(); });
+
+function reset() {
+  fs = makeFS(); cwd = HOME.slice(); hist = []; histPos = 0; last = { words: [], out: "", line: "" }; mi = 0;
+  outEl.innerHTML = "";
+  print('<span class="d">Bienvenido a Franc (simulado). Debian GNU/Linux 13.\nEscribe help para ver los comandos. Empieza por la misión de la derecha.</span>');
+  refreshPrompt(); showMission();
+}
+document.getElementById("resetBtn").addEventListener("click", function () { reset(); cmdEl.focus(); });
+document.getElementById("clearBtn").addEventListener("click", function () { outEl.innerHTML = ""; cmdEl.focus(); });
+document.getElementById("term").addEventListener("click", function (e) { if (!e.target.closest("button") && !window.getSelection().toString()) cmdEl.focus(); });
+reset();
+
+/* ---------------- Tuberías ---------------- */
+var FRUTAS = ["pera", "manzana", "pera", "kiwi", "pera", "manzana"];
+var STAGES = [
+  { c: "cat frutas.txt", w: "Lee el archivo tal cual.", f: function () { return FRUTAS.slice(); } },
+  { c: "sort", w: "Ordena: las iguales quedan juntas.", f: function (l) { return l.slice().sort(function (a, b) { return a.localeCompare(b, "es"); }); } },
+  { c: "uniq -c", w: "Junta las repetidas seguidas y las cuenta.", f: function (l) { var o = [], p = null, n = 0; l.forEach(function (x) { if (x === p) n++; else { if (p !== null) o.push(n + " " + p); p = x; n = 1; } }); if (p !== null) o.push(n + " " + p); return o; } },
+  { c: "sort -rn", w: "Ordena por número, de mayor a menor.", f: function (l) { return l.slice().sort(function (a, b) { return parseInt(b, 10) - parseInt(a, 10); }); } },
+  { c: "head -n 1", w: "Se queda con la primera línea: la respuesta.", f: function (l) { return l.slice(0, 1); } }
+];
+var ps = 1;
+function renderPipe() {
+  var data = [], html = "";
+  STAGES.forEach(function (s, i) {
+    data = s.f(data);
+    var cls = i >= ps ? " off" : i === ps - 1 ? " now" : "";
+    if (i) html += '<span class="arrow" aria-hidden="true">│→</span>';
+    html += '<div class="stage' + cls + '"><span class="cmd">' + esc(s.c) + '</span><pre>' + (i < ps ? esc(data.join("\n")) : "?") + '</pre><span class="what">' + esc(s.w) + "</span></div>";
+  });
+  document.getElementById("pipe").innerHTML = html;
+  document.getElementById("pipeCmd").innerHTML = '<span class="ok">$</span> ' + esc(STAGES.slice(0, ps).map(function (s) { return s.c; }).join(" | "));
+  var nb = document.getElementById("pipeNext");
+  nb.disabled = ps >= STAGES.length;
+  nb.textContent = ps >= STAGES.length ? "Respuesta: pera, 3 veces" : "Añadir " + STAGES[ps].c;
+}
+document.getElementById("pipeNext").addEventListener("click", function () { if (ps < STAGES.length) { ps++; renderPipe(); } });
+document.getElementById("pipeReset").addEventListener("click", function () { ps = 1; renderPipe(); });
+renderPipe();
+
+/* ---------------- Permisos ---------------- */
+var WHO = [["Dueño", "u · user"], ["Grupo", "g · group"], ["Resto", "o · others"]];
+var bits = [true, true, true, true, false, true, true, false, true];
+var pg = document.getElementById("pgrid");
+pg.innerHTML = '<span></span><span class="h">r · leer</span><span class="h">w · escribir</span><span class="h">x · ejecutar</span>' +
+  WHO.map(function (w, r) {
+    return '<span class="who">' + w[0] + "<small>" + w[1] + "</small></span>" + "rwx".split("").map(function (b, c) {
+      return '<button type="button" class="pbit" id="pbit-' + (r * 3 + c) + '" data-i="' + (r * 3 + c) + '">' + b + "</button>";
+    }).join("");
+  }).join("");
+function renderPerm() {
+  var s = "", oct = "";
+  for (var r = 0; r < 3; r++) {
+    var v = 0;
+    for (var c = 0; c < 3; c++) {
+      var on = bits[r * 3 + c];
+      document.getElementById("pbit-" + (r * 3 + c)).setAttribute("aria-pressed", on ? "true" : "false");
+      s += on ? "rwx"[c] : "-";
+      if (on) v += [4, 2, 1][c];
+    }
+    oct += v;
+  }
+  document.getElementById("pstr").innerHTML = '<span class="t">-</span>' + esc(s) + '<span class="t"> bryan bryan … archivo</span>';
+  document.getElementById("pcmd").innerHTML = '<span class="ok">$</span> chmod ' + oct + " archivo";
+  document.getElementById("poct").textContent = oct;
+  var verbs = ["leer", "modificar", "ejecutar"];
+  document.getElementById("psay").innerHTML = WHO.map(function (w, r) {
+    var can = verbs.filter(function (_, c) { return bits[r * 3 + c]; });
+    return "<li><b>" + w[0] + ":</b> " + (can.length ? "puede " + can.join(", ").replace(/, ([^,]*)$/, " y $1") : "nada") + "</li>";
+  }).join("");
+}
+pg.addEventListener("click", function (e) { var i = e.target.getAttribute("data-i"); if (i === null) return; bits[+i] = !bits[+i]; renderPerm(); });
+document.querySelectorAll("[data-oct]").forEach(function (b) {
+  b.addEventListener("click", function () {
+    b.getAttribute("data-oct").split("").forEach(function (d, r) { d = +d; bits[r * 3] = !!(d & 4); bits[r * 3 + 1] = !!(d & 2); bits[r * 3 + 2] = !!(d & 1); });
+    renderPerm();
+  });
+});
+renderPerm();
+})();
+</script>

@@ -26,3 +26,9 @@ para darte pistas en vez de la solución.
 | 06 | SQL y SQLite | Los datos de Finanzas |
 | 07 | Docker | Cómo corren tus servicios |
 | 08 | Servidor: SSH, systemd, redes | Gestionar Franc |
+
+## Página interactiva
+
+[Aprende con Franc](https://claude.ai/artifact/FZN7QVUfAzsVnbArzpYCAq): ruta
+con progreso, simulador de terminal con misiones y laboratorios de tuberías y
+permisos. El código fuente está en `web/index.html`.

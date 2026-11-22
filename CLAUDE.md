@@ -8,7 +8,9 @@ desarrollar por sí mismo sus dos proyectos:
 - **Finanzas**: web en Go (con SQLite, por confirmar) que corre en Docker en
   Franc, su servidor Debian, gestionado por SSH.
 
-Lee `ruta.md` antes de trabajar: dice qué módulo toca y qué está hecho.
+Lee `ruta.md` (el temario) y `decisiones.md` antes de trabajar. El progreso de
+Bryan se guarda en su navegador (`localStorage`), así que no puedes verlo:
+pregúntale por qué lección va.
 
 ## Nivel y motivación
 - Bryan parte de un nivel muy bajo. No des nada por sabido: si usas un término
@@ -40,8 +42,12 @@ Lee `ruta.md` antes de trabajar: dice qué módulo toca y qué está hecho.
   de Finanzas quedan marcados como "por concretar".
 
 ## Estructura
-- `ruta.md`: hoja de ruta y progreso (casillas). Actualízala al cerrar cada
-  lección o hito.
+- `ruta.md`: temario de los módulos. Si cambias el temario, actualiza también
+  la lista `MODULES` de `web/index.html` (están duplicados, ver D3).
+- `decisiones.md`: decisiones del proyecto y su motivo. Añade una entrada por
+  cada decisión relevante.
+- `web/index.html`: la página (ruta, simulador y laboratorios). Las líneas
+  marcadas `<!--esqueleto-->` se quitan al publicarla en claude.ai.
 - `modulos/NN-tema/`: un módulo por tema. `README.md` del módulo con objetivo,
   lecciones, chuleta y hito. Lecciones numeradas `01-...md`.
 - `modulos/NN-tema/practica/`: ejercicios. En Go, con tests que empiezan

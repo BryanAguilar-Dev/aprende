@@ -88,7 +88,7 @@ echo "Resultado: $bien de $total"
 if [ "$bien" -eq "$total" ]; then
   echo
   ./saludo.sh
-  echo "Marca el reto en ruta.md. Siguiente: el hito del módulo."
+  echo "Marca el reto en la página. Siguiente: el hito del módulo."
   exit 0
 fi
 exit 1

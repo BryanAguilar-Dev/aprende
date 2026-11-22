@@ -5,24 +5,27 @@ terminal. Un script te dirá si lo has conseguido.
 
 ## 1. Prepara el escenario
 
-Primero, lleva esta carpeta `practica/` a Franc. Desde la terminal de Windows,
-dentro de tu copia de `aprende`:
+Conéctate a Franc. Si aún no tienes el repositorio allí, descárgalo en tu
+carpeta personal:
 
 ```
-scp -r modulos/00-terminal/practica TU_USUARIO@FRANC:~/
+cd ~
+git clone https://github.com/BryanAguilar-Dev/aprende
 ```
 
-Usa el mismo usuario y dirección que pones en `ssh`. (`scp` es "copiar por
-SSH"; lo verás en el módulo 08.)
+Si responde `git: orden no encontrada`, instálalo antes con
+`sudo apt install git`. Si ya lo tenías, actualízalo con
+`cd ~/aprende && git pull`.
 
-Después, en Franc:
+Después, prepara el escenario:
 
 ```
-bash ~/practica/preparar.sh
+bash ~/aprende/modulos/00-terminal/practica/preparar.sh
 cd ~/practica-terminal
 ```
 
-Puedes repetir `preparar.sh` cuando quieras para empezar de cero.
+Puedes repetir `preparar.sh` cuando quieras para empezar de cero. Ojo: borra
+`~/practica-terminal` entera, también lo que hayas hecho.
 
 ## 2. Lo que te encuentras
 
@@ -54,7 +57,7 @@ Todo se hace dentro de `~/practica-terminal`:
 ## 4. Comprueba
 
 ```
-bash ~/practica/comprobar.sh
+bash ~/aprende/modulos/00-terminal/practica/comprobar.sh
 ```
 
 Cada tarea sale con ✔ o ✘. Si sale ✘, lee la pista y vuelve a intentarlo.

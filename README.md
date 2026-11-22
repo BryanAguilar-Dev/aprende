@@ -5,10 +5,13 @@ desarrollar por mí mismo **CaratCore** y **Finanzas**.
 
 ## Cómo se usa
 
-1. Abre [`ruta.md`](ruta.md) y busca la primera casilla sin marcar.
+1. Abre [la página](https://claude.ai/artifact/FZN7QVUfAzsVnbArzpYCAq) y busca el primer paso sin marcar. El temario
+   completo está en [`ruta.md`](ruta.md).
 2. Entra en el módulo y haz una lección (20-30 minutos).
-3. Haz la práctica. Sabrás que está bien porque el script o los tests lo dicen.
-4. Marca la casilla. Si algo te ha costado, escribe una nota en `apuntes/`.
+3. Practica en el simulador de la página y después en Franc. Sabrás que está
+   bien porque el script o los tests lo dicen.
+4. Marca el paso en la página. Si algo te ha costado, escribe una nota en
+   `apuntes/`.
 
 Si te atascas, pide ayuda a Claude en este repositorio: tiene instrucciones
 para darte pistas en vez de la solución.

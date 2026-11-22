@@ -73,4 +73,4 @@ nada.** Lee el error: casi siempre dice qué ha pasado.
    argumento?
 3. ¿Por qué Franc se maneja por terminal y no con ratón?
 
-Cuando tengas las respuestas, marca la lección en [`ruta.md`](../../ruta.md).
+Cuando tengas las respuestas, marca la lección en [la página](https://claude.ai/artifact/FZN7QVUfAzsVnbArzpYCAq).
